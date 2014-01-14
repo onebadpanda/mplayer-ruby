@@ -14,20 +14,22 @@ module MPlayer
 
 
     def initialize(file = '', options ={})
-      raise ArgumentError, 'Invalid File' unless file.is_a?(URI) || !File.exists?(file)
-      options[:path] ||= which('mplayer')
-      @file = file
 
-      mplayer_options = '-slave -quiet'
-      if @file == ''
-        mplayer_options = ' -idle'
+      if file != '' && !file.is_a?(URI)
+        raise ArgumentError, 'Invalid File' unless File.exist?(file)
       end
+
+      options[:path] ||= which('mplayer')
+
+      @file = file
+      mplayer_options = '-slave -quiet'
+      mplayer_options += ' -idle' if @file == ''
       mplayer_options += ' -vf screenshot' if options[:screenshot]
 
-      mplayer = "#{options[:path]} #{mplayer_options} #{@file}"
+      mplayer = "#{options[:path]} #{mplayer_options} #{@file unless @file.nil?}"
       @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
       until @stdout.gets.inspect =~ /playback/ do
-      end #fast forward past mplayer's initial output
+      end if @file != ''
     end
 
     # commands command to mplayer stdin and retrieves stdout.
@@ -45,19 +47,19 @@ module MPlayer
 
     def select_cycle(command,value,match = //)
       switch = case value
-      when :off then -1
-      when :cycle then -2
-      else value
-      end
+                 when :off then -1
+                 when :cycle then -2
+                 else value
+               end
       command "#{command} #{switch}",match
     end
 
     def toggle(command,value,match = //)
       cmd = case value
-      when :on then "#{command} 1"
-      when :off then "#{command} 0"
-      else "#{command}"
-      end
+              when :on then "#{command} 1"
+              when :off then "#{command} 0"
+              else "#{command}"
+            end
       command cmd,match
     end
 
