@@ -7,13 +7,13 @@ module MPlayer
     def volume(action,value=30)
       cmd =
       case action
-      when :up then "volume 1"
-      when :down then "volume 0"
+      when :up then 'volume 1'
+      when :down then 'volume 0'
       when :set then "volume #{value} 1"
       else return false
       end
       resp = command cmd, /Volume/
-      resp.gsub("Volume: ","").gsub(" %\n","")
+      resp.gsub('Volume: ', '').gsub(" %\n", '')
     end
 
     # Seek to some place in the file
@@ -27,7 +27,7 @@ module MPlayer
       else "seek #{value} 0"
       end
       resp = command command, /Position/
-      resp.gsub("Position: ","").gsub(" %\n","")
+      resp.gsub('Position: ', '').gsub(" %\n", '')
     end
 
     # Adjusts the current playback speed
@@ -48,9 +48,9 @@ module MPlayer
     # :set sets the amount of times to loop. defaults to one loop.
     def loop(action = :forever,value = 1)
       command case action
-      when :none then "loop -1"
+      when :none then 'loop -1'
       when :set then "loop #{value}"
-      else "loop 0"
+      else 'loop 0'
       end
     end
 
@@ -81,13 +81,13 @@ module MPlayer
     end
 
     # Switch volume control between master and PCM.
-    def use_master; command("use_master"); end
+    def use_master; command('use_master'); end
 
     # Toggle sound output muting or set it to [value] when [value] >= 0
     #     (1 == on, 0 == off).
     def mute(value = nil)
       resp = toggle :mute, value, /Mute/
-      resp.gsub("Mute: ","")
+      resp.gsub('Mute: ', '')
     end
 
     # returns information on file
@@ -98,12 +98,12 @@ module MPlayer
     def get(value)
       field = value.to_s
       match = case field
-      when "time_pos" then "ANS_TIME_POSITION"
-      when "time_length" then "ANS_LENGTH"
-      when "file_name" then "ANS_FILENAME"
+      when 'time_pos' then 'ANS_TIME_POSITION'
+      when 'time_length' then 'ANS_LENGTH'
+      when 'file_name' then 'ANS_FILENAME'
       else "ANS_#{field.upcase}"
       end
-      command("get_#{value}",/#{match}/).gsub("#{match}=","").gsub("'","")
+      command("get_#{value}",/#{match}/).gsub("#{match}=", '').gsub("'", '')
     end
 
     # This gives methods for each of the fields that data can be extract on.
@@ -127,7 +127,7 @@ module MPlayer
     # :append loads the file and appends it to the current playlist
     # :no_append will stop playback and play new loaded file
     def load_file(file,append = :no_append)
-      raise ArgumentError,"Invalid File" unless File.exists? file
+      raise ArgumentError, 'Invalid File' unless file.is_a?(URI) || !File.exists?(file)
       switch = (append == :append ? 1 : 0)
       command "loadfile #{file} #{switch}"
     end
@@ -136,7 +136,7 @@ module MPlayer
     # :append loads the playlist and appends it to the current playlist
     # :no_append will stop playback and play new loaded playlist
     def load_list(file,append = :no_append)
-      raise ArgumentError,"Invalid File" unless File.exists? file
+      raise ArgumentError, 'Invalid File' unless file.is_a?(URI) || !File.exists?(file)
       switch = (append == :append ? 1 : 0)
       command "loadlist #{file} #{switch}"
     end
@@ -167,13 +167,13 @@ module MPlayer
     end
     
     # Play one frame, then pause again.
-    def frame_step; command("frame_step"); end
+    def frame_step; command('frame_step'); end
 
     # Write the current position into the EDL file.
-    def edl_mark; command("edl_mark"); end
+    def edl_mark; command('edl_mark'); end
 
     # Pauses/Unpauses the file.
-    def pause; command("pause") ; end
+    def pause; command('pause') ; end
 
     # Quits MPlayer
     def quit
@@ -184,8 +184,8 @@ module MPlayer
     private
     
     def speed_setting(command,value)
-      raise ArgumentError,"Value must be less than 6" unless value <= 5
-      command("#{command} #{value}",/Speed/).gsub("Speed: x   ","")
+      raise ArgumentError, 'Value must be less than 6' unless value <= 5
+      command("#{command} #{value}",/Speed/).gsub('Speed: x   ', '')
     end
 
   end
