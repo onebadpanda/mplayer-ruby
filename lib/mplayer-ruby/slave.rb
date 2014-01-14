@@ -6,18 +6,23 @@ module MPlayer
     include MPlayer::SlaveVideoCommands
     include MPlayer::SlaveTvCommands
     include MPlayer::SlaveSubCommands
-
+    include MPlayer::Helpers
 
     # Initializes a new instance of MPlayer.
     # set :path to point to the location of mplayer
     # defaults to '/usr/bin/mplayer'
-    def initialize(file = "",options ={})
-      raise ArgumentError,"Invalid File" unless File.exists?(file)
-      options[:path] ||= '/usr/bin/mplayer'
+
+
+    def initialize(file = '', options ={})
+      raise ArgumentError, 'Invalid File' unless file.is_a?(URI) || !File.exists?(file)
+      options[:path] ||= which('mplayer')
       @file = file
 
-      mplayer_options = "-slave -quiet"
-      mplayer_options += " -vf screenshot" if options[:screenshot]
+      mplayer_options = '-slave -quiet'
+      if @file == ''
+        mplayer_options = ' -idle'
+      end
+      mplayer_options += ' -vf screenshot' if options[:screenshot]
 
       mplayer = "#{options[:path]} #{mplayer_options} #{@file}"
       @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
@@ -29,11 +34,11 @@ module MPlayer
     # If match is provided, fast-forwards stdout to matching response.
     def command(cmd,match = //)
       @stdin.puts(cmd)
-      response = ""
+      response = ''
       until response =~ match
         response = @stdout.gets
       end
-      response.gsub("\e[A\r\e[K","")
+      response.gsub("\e[A\r\e[K", '')
     end
 
     private
@@ -57,7 +62,7 @@ module MPlayer
     end
 
     def setting(command,value,type, match = //)
-      raise(ArgumentError,"Value out of Range -100..100") unless (-100..100).include?(value)
+      raise(ArgumentError, 'Value out of Range -100..100') unless (-100..100).include?(value)
       adjust_set command, value, type, match
     end
 
