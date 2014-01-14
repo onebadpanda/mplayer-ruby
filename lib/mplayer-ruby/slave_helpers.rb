@@ -1,5 +1,5 @@
 module MPlayer
-  module Helpers
+  module SlaveHelpers
 
     # Returns the path to a given command
     # This works on multiple platforms.

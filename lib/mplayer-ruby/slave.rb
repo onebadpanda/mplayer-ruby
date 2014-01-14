@@ -6,7 +6,7 @@ module MPlayer
     include MPlayer::SlaveVideoCommands
     include MPlayer::SlaveTvCommands
     include MPlayer::SlaveSubCommands
-    include MPlayer::Helpers
+    include MPlayer::SlaveHelpers
 
     # Initializes a new instance of MPlayer.
     # set :path to point to the location of mplayer
