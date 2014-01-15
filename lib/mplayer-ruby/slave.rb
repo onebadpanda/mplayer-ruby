@@ -14,11 +14,8 @@ module MPlayer
 
 
     def initialize(file = '', options ={})
-
-      if file != '' && !file.is_a?(URI)
-        raise ArgumentError, 'Invalid File' unless File.exist?(file)
-      end
-
+      raise ArgumentError, 'Invalid File' unless File.exist?(file) if file != '' && !!file.is_a?(URI)
+      
       options[:path] ||= which('mplayer')
 
       @file = file
