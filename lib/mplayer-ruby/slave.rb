@@ -26,7 +26,7 @@ module MPlayer
       mplayer_options += ' -idle' if @file == ''
       mplayer_options += ' -vf screenshot' if options[:screenshot]
 
-      mplayer = "#{options[:path]} #{mplayer_options} #{@file unless @file.nil?}"
+      mplayer = "#{options[:path]} #{mplayer_options} #{@file unless @file == ''}"
       @pid,@stdin,@stdout,@stderr = Open4.popen4(mplayer)
       until @stdout.gets.inspect =~ /playback/ do
       end if @file != ''
